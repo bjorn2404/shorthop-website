@@ -1,0 +1,14 @@
+{
+  "name": "shorthop-website",
+  "version": "1.0.0",
+  "description": "Marketing site, shortcut docs, and privacy policy for the ShortHop browser extension.",
+  "packageManager": "pnpm@8.0.0",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "eleventy",
+    "debug": "DEBUG=Eleventy* eleventy"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  }
+}

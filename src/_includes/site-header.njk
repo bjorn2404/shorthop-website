@@ -1,0 +1,27 @@
+<header class="site-header">
+    <div class="flex items-center space-x-3 mb-4">
+        {% include "logo.njk" %}
+        {% if animatedTitle %}
+            <h1 class="animated-heading">
+                <span class="typed-title" id="animatedTitle">ShortHop</span>
+            </h1>
+        {% else %}
+            <h1>ShortHop</h1>
+        {% endif %}
+    </div>
+    {% if customTagline %}
+        <p class="tagline">{{ customTagline }}</p>
+    {% else %}
+        <p class="tagline">Down the rabbit hole in seconds. Smart shortcuts that take you directly where you need to go.</p>
+    {% endif %}
+    
+    <nav class="site-nav">
+        <a href="/" class="nav-link{% if page.url == '/' %} active{% endif %}">Home</a>
+        <a href="/docs/" class="nav-link{% if page.url == '/docs/' %} active{% endif %}">Documentation</a>
+        <a href="#" class="nav-link install-link">Install Extension</a>
+    </nav>
+    
+    <script>
+        console.log("🐰 ShortHop: \"The best way to explain it is to do it.\" - Lewis Carroll");
+    </script>
+</header>
