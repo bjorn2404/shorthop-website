@@ -30,7 +30,7 @@ The Eleventy-powered marketing site, shortcut documentation, and privacy policy 
 
 ## Keeping the shortcut listing current
 
-This repo is separate from the [extension's own repo](https://github.com/bjorn2404/NavCMD), which is the source of truth for the actual shortcut set. `docs.md`'s shortcut listing is a hand-maintained list, not auto-generated, so when shortcuts are added, removed, or renamed in the extension, update `src/docs.md`'s `shortcutCategories` object here to match.
+This repo is separate from the extension's own (private) repo, which is the source of truth for the actual shortcut set. `docs.md`'s shortcut listing is a hand-maintained list, not auto-generated, so when shortcuts are added, removed, or renamed in the extension, update `src/docs.md`'s `shortcutCategories` object here to match.
 
 ## Deployment
 
