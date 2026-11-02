@@ -211,7 +211,7 @@ pageScripts: |
     <div class="cta-box">
         <h2>Install ShortHop</h2>
         <p>Get 240+ shortcuts + 10 custom ones instantly. No setup required, completely free to start. Pro upgrade available for $14.99 one-time (no subscription).</p>
-        <a href="#" class="button">Install Extension</a>
+        <span class="button" aria-disabled="true" style="opacity: 0.6; cursor: default;">Coming Soon</span>
     </div>
     <div class="cta-box">
         <h2>Explore All Shortcuts</h2>
