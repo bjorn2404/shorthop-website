@@ -191,10 +191,11 @@ pageScripts: |
     <p class="secondary">Upgrade to ShortHop Pro for:</p>
     <ul>
         <li><strong>Many more custom shortcuts</strong> - No 10-shortcut limit</li>
+        <li><strong>Import/export</strong> - Back up your shortcuts or move them to another device</li>
         <li><strong>Enhanced functionality</strong> - Additional features in development</li>
         <li><strong>Priority support</strong> - Direct access to developer</li>
     </ul>
-    <p class="secondary" style="margin-top: 1.5rem;">One-time payment of $14.99 - no subscription required. Planned features include import/export, team sharing, and enhanced productivity tools.</p>
+    <p class="secondary" style="margin-top: 1.5rem;">One-time payment of $14.99 - no subscription required. Planned features include team sharing and enhanced productivity tools.</p>
     
     <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(51, 255, 51, 0.2); border-radius: 4px;">
         <h3 style="color: var(--highlight-color); margin: 0 0 1rem 0;">How to Upgrade to Pro</h3>
