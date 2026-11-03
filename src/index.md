@@ -3,106 +3,116 @@ layout: base.njk
 pageTitle: "ShortHop - Browser Extension | Down the Rabbit Hole"
 pageScripts: |
   document.addEventListener('DOMContentLoaded', () => {
-      // Fallback - Display text without animation if something goes wrong
-      const textElements = document.querySelectorAll('.typed-text');
-      textElements.forEach(el => {
-          // Set a timeout to ensure text displays even if animation fails
-          setTimeout(() => {
-              if (el.style.width !== '100%') {
-                  el.style.width = '100%';
-                  el.textContent = el.dataset.text;
-              }
-          }, 4000);
-      });
+      const rotator = document.getElementById('terminalRotator');
+      if (!rotator) return;
 
-      // Get all demo elements
-      const demos = document.querySelectorAll('.typing-demo');
+      const commandEl = rotator.querySelector('.command');
+      const textEl = rotator.querySelector('.typed-text');
+      const cursorEl = rotator.querySelector('.cursor');
 
-      // Function to start typing animation
-      function startTypingAnimation(element, delay = 0) {
-          setTimeout(() => {
-              // Add active class to start animation
-              element.classList.add('typing-active');
+      const examples = [
+          { command: 'cld', text: 'explain quantum computing', site: 'Claude AI' },
+          { command: 'gh', text: 'typescript', site: 'GitHub' },
+          { command: 'yf', text: 'NVDA', site: 'Yahoo Finance' },
+          { command: 'so', text: 'javascript async await', site: 'Stack Overflow' },
+          { command: 'amz', text: 'mechanical keyboard', site: 'Amazon' },
+          { command: 'yt', text: 'python tutorial', site: 'YouTube' },
+          { command: 'r', text: 'programming', site: 'Reddit' },
+          { command: 'bbg', text: 'federal reserve', site: 'Bloomberg' }
+      ];
 
-              // Get the text to type
-              const textElement = element.querySelector('.typed-text');
-              const cursorElement = element.querySelector('.cursor');
-              const text = textElement.dataset.text;
-              const typingDuration = 2000; // 2 seconds
+      const TYPE_DELAY = 45;
+      const DELETE_DELAY = 25;
+      const PAUSE_AFTER_TYPE = 1800;
+      const PAUSE_AFTER_DELETE = 300;
 
-              // Make sure text is visible during animation
-              textElement.textContent = text;
-
-              // Show cursor
-              cursorElement.classList.remove('hidden');
-
-              // When animation completes
-              setTimeout(() => {
-                  element.classList.add('typing-complete');
-                  textElement.style.width = '100%'; // Force width to 100%
-
-                  // Hide cursor after a delay
-                  setTimeout(() => {
-                      cursorElement.classList.add('hidden');
-                  }, 500);
-              }, typingDuration);
-
-          }, delay);
+      function showExampleStatic(index) {
+          const example = examples[index];
+          commandEl.textContent = example.command;
+          textEl.textContent = example.text;
+          rotator.dataset.site = example.site;
       }
 
-      // Check if IntersectionObserver is supported
-      if ('IntersectionObserver' in window) {
-          const observerOptions = {
-              root: null,
-              rootMargin: '0px',
-              threshold: 0.5
-          };
+      // Users who've asked their OS to reduce motion get one example shown
+      // plainly, no perpetual typing loop and no blinking cursor.
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          showExampleStatic(0);
+          cursorEl.style.display = 'none';
+          return;
+      }
 
+      function typeText(text, onDone) {
+          let typed = '';
+          rotator.classList.add('typing-in-progress');
+
+          function step() {
+              if (typed.length < text.length) {
+                  typed += text[typed.length];
+                  textEl.textContent = typed;
+                  setTimeout(step, TYPE_DELAY);
+              } else {
+                  rotator.classList.remove('typing-in-progress');
+                  onDone();
+              }
+          }
+          step();
+      }
+
+      function deleteText(onDone) {
+          rotator.classList.add('typing-in-progress');
+
+          function step() {
+              const current = textEl.textContent;
+              if (current.length > 0) {
+                  textEl.textContent = current.slice(0, -1);
+                  setTimeout(step, DELETE_DELAY);
+              } else {
+                  rotator.classList.remove('typing-in-progress');
+                  onDone();
+              }
+          }
+          step();
+      }
+
+      function runExample(index) {
+          const example = examples[index];
+          commandEl.textContent = example.command;
+          rotator.dataset.site = example.site;
+          textEl.textContent = '';
+
+          typeText(example.text, () => {
+              setTimeout(() => {
+                  deleteText(() => {
+                      setTimeout(() => {
+                          runExample((index + 1) % examples.length);
+                      }, PAUSE_AFTER_DELETE);
+                  });
+              }, PAUSE_AFTER_TYPE);
+          });
+      }
+
+      let started = false;
+      function start() {
+          if (started) return;
+          started = true;
+          runExample(0);
+      }
+
+      // Start once the rotator actually scrolls into view, not immediately
+      // on page load, so it's not animating off-screen.
+      if ('IntersectionObserver' in window) {
           const observer = new IntersectionObserver((entries) => {
               entries.forEach(entry => {
                   if (entry.isIntersecting) {
-                      // Element is in view, start animation
-                      const index = Array.from(demos).indexOf(entry.target);
-                      startTypingAnimation(entry.target, index * 2000); // Stagger by 2 seconds
-
-                      // Unobserve after animation starts
+                      start();
                       observer.unobserve(entry.target);
                   }
               });
-          }, observerOptions);
-
-          // Observe each demo element
-          demos.forEach(demo => {
-              observer.observe(demo);
-          });
+          }, { threshold: 0.3 });
+          observer.observe(rotator);
       } else {
-          // Fallback for browsers without IntersectionObserver
-          // Just start the first animation
-          startTypingAnimation(demos[0]);
-
-          // Add scroll listener to trigger the rest
-          let animatedCount = 1;
-          window.addEventListener('scroll', () => {
-              if (animatedCount < demos.length) {
-                  startTypingAnimation(demos[animatedCount], 500);
-                  animatedCount++;
-              }
-          });
+          start();
       }
-
-      // Option to manually trigger animation again by clicking
-      demos.forEach(demo => {
-          demo.addEventListener('click', () => {
-              // Reset classes
-              demo.classList.remove('typing-active', 'typing-complete');
-
-              // Force reflow
-              void demo.offsetWidth;
-
-              // Start animation again
-              startTypingAnimation(demo);
-          });
-      });
   });
 
 ---
@@ -127,19 +137,13 @@ pageScripts: |
     </div>
 </section>
 
-<!-- Initial fallback text - These will be replaced by animations but ensure content is visible -->
+<!-- Initial fallback text/attributes - ensures content is visible and
+     readable even if the rotation script fails to run. -->
 <section id="how-it-works">
     <h2>Productivity in Action</h2>
     <p>Transform your address bar into a productivity powerhouse. Type shortcuts to search any site instantly:</p>
 
-    <div class="url-example typing-demo" id="demo1" data-site="Claude AI"><span class="command">cld</span>&nbsp;<span class="typed-text" data-text="explain quantum computing">explain quantum computing</span><span class="cursor">&nbsp;</span></div>
-    <div class="url-example typing-demo" id="demo2" data-site="GitHub"><span class="command">gh</span>&nbsp;<span class="typed-text" data-text="typescript">typescript</span><span class="cursor hidden">&nbsp;</span></div>
-    <div class="url-example typing-demo" id="demo3" data-site="Yahoo Finance"><span class="command">yf</span>&nbsp;<span class="typed-text" data-text="NVDA">NVDA</span><span class="cursor hidden">&nbsp;</span></div>
-    <div class="url-example typing-demo" id="demo4" data-site="Stack Overflow"><span class="command">so</span>&nbsp;<span class="typed-text" data-text="javascript async await">javascript async await</span><span class="cursor hidden">&nbsp;</span></div>
-    <div class="url-example typing-demo" id="demo5" data-site="Amazon"><span class="command">amz</span>&nbsp;<span class="typed-text" data-text="mechanical keyboard">mechanical keyboard</span><span class="cursor hidden">&nbsp;</span></div>
-    <div class="url-example typing-demo" id="demo6" data-site="YouTube"><span class="command">yt</span>&nbsp;<span class="typed-text" data-text="python tutorial">python tutorial</span><span class="cursor hidden">&nbsp;</span></div>
-    <div class="url-example typing-demo" id="demo7" data-site="Reddit"><span class="command">r</span>&nbsp;<span class="typed-text" data-text="programming">programming</span><span class="cursor hidden">&nbsp;</span></div>
-    <div class="url-example typing-demo" id="demo8" data-site="Bloomberg"><span class="command">bbg</span>&nbsp;<span class="typed-text" data-text="federal reserve">federal reserve</span><span class="cursor hidden">&nbsp;</span></div>
+    <div class="url-example terminal-rotator" id="terminalRotator" data-site="Claude AI"><span class="command">cld</span>&nbsp;<span class="typed-text">explain quantum computing</span><span class="cursor">&nbsp;</span></div>
 </section>
 
 <section id="smart-patterns">
